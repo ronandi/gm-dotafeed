@@ -1,8 +1,7 @@
 (ns gm-dotafeed.dota-api
-  (:require [clj-http.client :as http])
-  (:require [clojure.string :only split :as string]))
+  (:require [clj-http.client :as http]))
 
-(def ^:private ^:dynamic *token*)
+(def ^:dynamic *token*)
 ;Steam WebAPI Endpoints
 (def ^:private hero-endpoint
   "http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v1")

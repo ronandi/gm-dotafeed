@@ -4,8 +4,6 @@
             [environ.core :refer [env]]
             [clojure.java.jdbc :as sql]))
 
-(declare build-hero-map)
-(declare initialize-seen-matches)
 (def api-key (env :steam-api-key))
 (def gm-bot-key (env :dotafeed-bot-key))
 (def db (or (System/getenv "DATABASE_URL") "postgresql://localhost:5432/dotafeed"))
@@ -31,10 +29,6 @@
         matches (flatten matches)]
     (set (map :match_id matches))))
 
-(defn populate-names
-  [heroes {:keys [hero_id account_id]}]
-  {:hero (get heroes hero_id) :player-name (get friends account_id)})
-
 (defn pretty-player
   [heroes {:keys [hero_id account_id]}]
   (let [hero-name (get heroes hero_id)
@@ -57,19 +51,9 @@
   [match-id]
   (empty? (sql/query db ["select * from matches where match_id = ?" match-id])))
 
-
 (defn -main
   []
   (let [new-matches (filter match-is-new (last-matches (keys friends)))]
     (doseq [match-id new-matches]
       (groupme/send-message (pretty-print-match (dota/get-match-details match-id :token api-key)) :token gm-bot-key)
       (sql/insert! db :matches {:match_id match-id}))))
-
-
-;For a list of friends, get each person's last played game. If we have not seen the game,
-;display the results of the game
-
-;Get last match for each person and make into a set (since people play together)
-;For each unseen: get details of match. substitute player Ids for names of friends. Sub hero id for hero name
-
-;Requirements - Mapping of friends to account ids, Mapping of Hero ids to hero names
