@@ -8,4 +8,6 @@
                  [clj-http "0.7.8"]
                  [org.clojure/java.jdbc "0.3.3"]
                  [postgresql/postgresql "8.4-702.jdbc4"]]
+  :uberjar-name "gm-dotafeed.jar"
+  :min-lein-version "2.0.0"
   :plugins [[lein-environ "0.4.0"]])

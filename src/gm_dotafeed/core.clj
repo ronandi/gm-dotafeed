@@ -1,11 +1,14 @@
 (ns gm-dotafeed.core
   (:require [gm-dotafeed.dota-api :as dota]
-            [environ.core :refer [env]]))
+            [gm-dotafeed.groupme-api :as groupme]
+            [environ.core :refer [env]]
+            [clojure.java.jdbc :as sql]))
 
 (declare build-hero-map)
 (declare initialize-seen-matches)
 (def api-key (env :steam-api-key))
-(def db (or (System/getenv "DATABASE_URL") "postgresql://localhost:5432/matches"))
+(def gm-bot-key (env :dotafeed-bot-key))
+(def db (or (System/getenv "DATABASE_URL") "postgresql://localhost:5432/dotafeed"))
 
 (def friends {17782411 "Rohit" 88721757 "Tanay"
               115027706 "Daven" 33140492 "Rob"
@@ -46,9 +49,21 @@
         heroes (build-hero-map api-key)
         radiant (map (partial pretty-player heroes) radiant)
         dire (map (partial pretty-player heroes) dire)
-        winner (if (:winner match) "Radiant" "Dire")]
+        winner (if (:radiant_win match) "Radiant" "Dire")]
     (str "Radiant: " (apply str (interpose ", " radiant)) " vs. Dire: " (apply str (interpose ", " dire))
          ". " winner " Victory. dotabuff.com/matches/" (:match_id match))))
+
+(defn match-is-new
+  [match-id]
+  (empty? (sql/query db ["select * from matches where match_id = ?" match-id])))
+
+
+(defn -main
+  []
+  (let [new-matches (filter match-is-new (last-matches (keys friends)))]
+    (doseq [match-id new-matches]
+      (groupme/send-message (pretty-print-match (dota/get-match-details match-id :token api-key)) :token gm-bot-key)
+      (sql/insert! db :matches {:match_id match-id}))))
 
 
 ;For a list of friends, get each person's last played game. If we have not seen the game,
