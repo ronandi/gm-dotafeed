@@ -39,7 +39,7 @@
   "Print out some match details"
   [match]
   (let [players (map #(select-keys % [:account_id :hero_id :player_slot]) (:players match))
-        {radiant true dire false} (group-by #(< 5 (:player_slot %)) players)
+        {radiant true dire false} (group-by #(> 5 (:player_slot %)) players)
         heroes (build-hero-map api-key)
         radiant (map (partial pretty-player heroes) radiant)
         dire (map (partial pretty-player heroes) dire)
