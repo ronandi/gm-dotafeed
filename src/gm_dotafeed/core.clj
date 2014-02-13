@@ -12,6 +12,8 @@
               115027706 "Daven" 33140492 "Rob"
               29991728 "Xavier" 8244147 "Apurva"})
 
+(def relevant-modes #{1 2 3 4 5 12})
+
 (defn build-hero-map
   [api-key]
   "Return a id -> name mapping"
@@ -53,7 +55,9 @@
 
 (defn -main
   []
-  (let [new-matches (filter match-is-new (last-matches (keys friends)))]
-    (doseq [match-id new-matches]
-      (groupme/send-message (pretty-print-match (dota/get-match-details match-id :token api-key)) :token gm-bot-key)
-      (sql/insert! db :matches {:match_id match-id}))))
+  (let [new-matches (filter match-is-new (last-matches (keys friends)))
+        new-matches (map #(dota/get-match-details % :token api-key) new-matches)
+        relevant-matches (filter relevant-modes new-matches)]
+    (doseq [match relevant-matches]
+      (groupme/send-message (pretty-print-match match) :token gm-bot-key)
+      (sql/insert! db :matches {:match_id (:match_id match)}))))
