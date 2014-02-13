@@ -57,7 +57,7 @@
   []
   (let [new-matches (filter match-is-new (last-matches (keys friends)))
         new-matches (map #(dota/get-match-details % :token api-key) new-matches)
-        relevant-matches (filter relevant-modes new-matches)]
+        relevant-matches (filter (comp relevant-modes :game_mode) new-matches)]
     (doseq [match relevant-matches]
       (groupme/send-message (pretty-print-match match) :token gm-bot-key)
       (sql/insert! db :matches {:match_id (:match_id match)}))))
