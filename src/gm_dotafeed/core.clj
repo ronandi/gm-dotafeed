@@ -46,8 +46,8 @@
         radiant (map (partial pretty-player heroes) radiant)
         dire (map (partial pretty-player heroes) dire)
         winner (if (:radiant_win match) "Radiant" "Dire")]
-    (str "Radiant: " (apply str (interpose ", " radiant)) " vs. Dire: " (apply str (interpose ", " dire))
-         ". " winner " Victory. dotabuff.com/matches/" (:match_id match))))
+    (str "Radiant:\n" (apply str (interpose "\n" radiant)) "\n\nDire:\n" (apply str (interpose "\n" dire))
+         "\n\n" winner " Victory.\ndotabuff.com/matches/" (:match_id match))))
 
 (defn match-is-new
   [match-id]
