@@ -18,9 +18,8 @@
   [api-key]
   "Return a id -> name mapping"
   (let [raw-hero-data (dota/get-heroes :token api-key)
-        num-heroes (count raw-hero-data)
-        hero-map (vec (repeat num-heroes nil))]
-    (reduce #(assoc % (:id %2) (:localized_name %2)) hero-map raw-hero-data)))
+        num-heroes (count raw-hero-data)]
+    (reduce #(assoc % (:id %2) (:localized_name %2)) {} raw-hero-data)))
 
 (defn last-matches
   "Return a set of ids of the last matches friends played"
